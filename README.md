@@ -1,1 +1,1 @@
-Contains basic programs illustrating use of different python functions.
+Contains python programs utilising different python functions.
