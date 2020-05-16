@@ -15,7 +15,8 @@ l = np.array([0,237,132])
 u = np.array([21,255,255])
 
 #Control for beat sound
-ctrL=ctrR=0
+ctrL=0
+ctrR=0
 
 while 1 :
 	_,frame = cap.read()
@@ -34,7 +35,7 @@ while 1 :
 			winsound.PlaySound("SmallTom", winsound.SND_FILENAME)
 			ctrL=1
 		
-	if ctrL==1 and not ((mask[370:410,100:240]).all()):
+	if ctrL==1 and (not (mask[370:410,420:560]).any()):
 		ctrL=0
 
 	#Snare control
@@ -43,7 +44,7 @@ while 1 :
 			winsound.PlaySound("Snare", winsound.SND_FILENAME)
 			ctrR=1
 		
-	if ctrR==1 and not ((mask[370:410,100:240]).all()):
+	if ctrR==1 and (not (mask[370:410,100:240]).any()):
 		ctrR=0
 
 
@@ -57,10 +58,15 @@ while 1 :
 
 	#Flip the image to get mirror image
 	flip_frame = np.flip(frame,1) #'1' > vertical axis; flips the image matrix about this axis
-	flip_mask = np.flip(mask,1)
+	# flip_mask = np.flip(mask,1)
+
+	#Put text on the image
+	flip_text_frame = cv2.putText(flip_frame, "Aero-Drums", (230,40), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+	flip_text_frame = cv2.putText(flip_text_frame, "Press 'Q' to quit", (10,470), cv2.FONT_ITALIC, 0.5, (255,255,255), 1, cv2.LINE_AA)
 
 	#Display the drums
-	cv2.imshow('Aerodrums',flip_frame)
+	cv2.imshow('Aerodrums',flip_text_frame)
+	# cv2.imshow('mask',flip_mask)
 
 	if cv2.waitKey(1) == ord('q'):
 		break
