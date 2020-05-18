@@ -1,0 +1,112 @@
+import cv2
+import numpy as np
+import winsound
+import threading
+# CAP_PROP_FRAME_HEIGHT = 480
+# CAP_PROP_FRAME_WIDTH = 640
+
+def playDrumL():
+
+	#Define kernel for dilation of drum stick tip
+	kernel = np.ones((7,7),np.uint8)
+
+	#HSV ranges for detecting drum stick tip
+	l = np.array([0,237,132])
+	u = np.array([21,255,255])
+
+	#Control for beat sound
+	ctrL=0
+
+	while 1 :
+		_,PFRAME = cap.read()
+		hsv = cv2.cvtColor(PFRAME, cv2.COLOR_BGR2HSV)
+
+		#Create drum stick tip mask and dilate it
+		mask = cv2.inRange(hsv, l, u)
+		mask = cv2.dilate(mask,kernel,iterations=3)
+
+		#Implement beat sound control
+
+		#Small Tom control
+		if ctrL==0:
+			if (mask[370:410,420:560]).any():
+				winsound.PlaySound("SmallTom_short", winsound.SND_FILENAME)
+				ctrL=1
+			
+		if ctrL==1 and (not (mask[370:410,420:560]).any()):
+			ctrL=0
+
+	
+def playDrumR():
+
+	#Define kernel for dilation of drum stick tip
+	kernel = np.ones((7,7),np.uint8)
+
+	#HSV ranges for detecting drum stick tip
+	l = np.array([0,237,132])
+	u = np.array([21,255,255])
+
+	#Control for beat sound
+	ctrR=0
+
+	while 1 :
+		_,PFRAME = cap.read()
+		hsv = cv2.cvtColor(PFRAME, cv2.COLOR_BGR2HSV)
+
+		#Create drum stick tip mask and dilate it
+		mask = cv2.inRange(hsv, l, u)
+		mask = cv2.dilate(mask,kernel,iterations=3)
+
+		#Implement beat sound control
+
+		#Snare control
+		if ctrR==0:
+			if (mask[370:410,100:240]).any():
+				winsound.PlaySound("Snare", winsound.SND_FILENAME)
+				ctrR=1
+			
+		if ctrR==1 and (not (mask[370:410,100:240]).any()):
+			ctrR=0
+
+
+def dispDrum():
+
+	while 1 :
+		_,DFRAME = cap.read()
+		#LEFT DRUM
+		cv2.rectangle(DFRAME,(420,410),(560,370),(42,42,165),-1)
+		cv2.rectangle(DFRAME,(410,400),(570,380),(0,0,0),-1)
+		
+		#RIGHT DRUM
+		cv2.rectangle(DFRAME,(100,410),(240,370),(42,42,165),-1)
+		cv2.rectangle(DFRAME,(90,400),(250,380),(0,0,0),-1)
+
+		#Flip the image to get mirror image
+		flip_frame = np.flip(DFRAME,1) #'1' > vertical axis; flips the image matrix about this axis
+		#flip_mask = np.flip(mask,1)
+
+		#Put text on the image
+		flip_text_frame = cv2.putText(flip_frame, "Aero-Drums", (230,40), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+		flip_text_frame = cv2.putText(flip_text_frame, "Press 'Q' to quit", (10,470), cv2.FONT_ITALIC, 0.5, (255,255,255), 1, cv2.LINE_AA)
+
+		#framelay the drums
+		cv2.imshow('Aerodrums',flip_text_frame)
+		#cv2.imshow('mask',flip_mask)
+
+		if cv2.waitKey(1) == ord('q'):
+			break
+
+
+cap = cv2.VideoCapture(0)
+
+td = threading.Thread(target=dispDrum)
+tpl = threading.Thread(target=playDrumL)
+tpr = threading.Thread(target=playDrumR)
+tpl.setDaemon(True)
+tpr.setDaemon(True)
+
+td.start()
+tpl.start()
+tpr.start()
+
+cv2.destroyAllWindows()
