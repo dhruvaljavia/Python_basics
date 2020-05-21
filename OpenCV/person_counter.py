@@ -76,8 +76,10 @@ while 1:
 
 	# Updates the initial cross lines after every 500 iterations(< 1 min)
 	if ctr%500==0:
-		Rline = np.int32(b[0:480,180:190])
-		Lline = np.int32(b[0:480,450:460])
+		if cL==0 and cR==0 and cLX==0 and cRX==0:
+			Rline = np.int32(b[0:480,180:190])
+			Lline = np.int32(b[0:480,450:460])
+		
 		ctr=0
 
 cap.release()
