@@ -167,7 +167,8 @@ def dispDrum():
 		#flip_mask = np.flip(mask,1)
 
 		#Put text on the image
-		flip_text_frame = cv2.putText(flip_frame, "Aero-Drums", (380,40), cv2.FONT_HERSHEY_DUPLEX, 1, (255,255,255), 2, cv2.LINE_AA)
+		flip_text_frame = cv2.putText(flip_frame, "Detecting drumstick tip colour : ", (30,40), cv2.FONT_HERSHEY_DUPLEX, 0.8, (255,255,255), 1, cv2.LINE_AA)
+		flip_text_frame = cv2.rectangle(flip_text_frame, (480,25),(460,45),(17,183,255),-1)
 		flip_text_frame = cv2.putText(flip_text_frame, "Press 'Q' to quit", (10,520), cv2.FONT_ITALIC, 0.5, (255,255,255), 1, cv2.LINE_AA)
 
 		#framelay the drums
