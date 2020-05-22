@@ -1,5 +1,7 @@
 import cv2
 import numpy as np
+from datetime import datetime as DT
+import os
 
 cap = cv2.VideoCapture(700)
 # CAP_PROP_FRAME_HEIGHT = 480
@@ -7,6 +9,8 @@ cap = cv2.VideoCapture(700)
 
 ctr = 0 # Counter for updating the initial cross lines
 thresh = 200 # For distinguishing between pixel noise and crossing person
+
+LC=RC=0 # Variables storing no. of people crossing from left and right
 
 cL=cR=cLX=cRX=0
 flgL=flgR=0
@@ -18,6 +22,11 @@ B,G,R = cv2.split(init)
 Rline = np.int32(B[0:480,180:190])
 Lline = np.int32(B[0:480,450:460])
 cv2.waitKey(2000)
+
+# Write the data to a file
+file = open('C:\\Users\\Admin\\Python progs\\OpenCV\\people_counter_data.txt','a')
+file.write('\nDATE : ' + str(DT.now())[0:10])
+file.write('\nSTART TIME : ' + str(DT.now())[11:19])
 
 # Reads and displays the web cam feed
 while 1:
@@ -37,6 +46,7 @@ while 1:
 	if np.any(diffR>thresh): 
 		if cL==0 and flgR==0:
 			print('crossed from right!')
+			RC=RC+1
 			cR=1
 			flgR=1
 		elif cL==1:
@@ -50,7 +60,8 @@ while 1:
 
 	if np.any(diffL>thresh):
 		if cR==0 and flgL==0:
-			print('crossed from left!')	
+			print('crossed from left!')
+			LC=LC+1	
 			cL=1
 			flgL=1
 		elif cR==1:
@@ -67,7 +78,7 @@ while 1:
 	cv2.rectangle(frame,(450,480),(460,0),(0,0,0),-1)
 	fframe = np.flip(frame,1)
 	cv2.imshow('webcam_feed',fframe)
-	#cv2.imshow('gray',np.flip(b,1))
+	# cv2.imshow('gray',np.flip(b,1))
 
 
 	if cv2.waitKey(1) == ord('q'):
@@ -81,6 +92,13 @@ while 1:
 			Lline = np.int32(b[0:480,450:460])
 		
 		ctr=0
+
+file.write('\nEND TIME : ' + str(DT.now())[11:19])
+file.write('\nNo. of people entered = ' + str(LC))
+file.write('\nNo. of people left = ' + str(RC))
+file.write('\nNo. of people inside the area of surveillance = ' + str(LC-RC))
+file.write('\n')
+file.close()
 
 cap.release()
 cv2.destroyAllWindows()
